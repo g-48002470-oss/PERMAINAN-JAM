@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tick-Tock! Jom Belajar Jam</title>
+<style>
+:root{--navy:#23466d;--blue:#2c91d3;--orange:#f18a43;--cream:#fffaf0;--yellow:#ffe49b;--pink:#ffe7ee;--green:#e1f7e8}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Trebuchet MS",Arial,sans-serif;background:linear-gradient(135deg,#e9f7ff,#fff4d9);color:#29425a}
+main{max-width:850px;margin:auto;padding:18px}
+header{text-align:center;background:#fff;border:4px solid #ffe08a;border-radius:24px;padding:16px;margin-bottom:16px;box-shadow:0 5px 0 #e9cf87}
+h1{margin:0;color:#d87532;font-size:clamp(1.7rem,5vw,2.5rem)} header p{margin:8px 0 0}
+.panel{background:#fff;border-radius:22px;padding:18px;margin:14px 0;box-shadow:0 4px 12px #23466d12}
+.row{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.pill{background:#e7f4ff;color:#245b8a;border-radius:999px;padding:8px 13px;font-weight:bold}
+.prompt{background:#eaf6ff;border-radius:18px;padding:14px;text-align:center;margin:12px 0}
+.prompt h2{margin:0 0 5px;color:#185a8d}
+.prompt p{margin:0}
+.clock-wrap{max-width:360px;margin:0 auto;text-align:center}
+svg{width:100%;touch-action:none;user-select:none}
+.time-readout{font-size:2rem;font-weight:bold;color:#245b8a;margin:0 0 8px}
+.legend{display:flex;gap:15px;justify-content:center;flex-wrap:wrap;font-size:.95rem}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.control{border:2px solid #e6edf2;border-radius:16px;padding:12px}
+.control h3{margin:0 0 8px;font-size:1rem}
+button{font:inherit;font-weight:bold;border:0;border-radius:13px;padding:12px 15px;cursor:pointer;transition:transform .08s}
+button:active{transform:scale(.98)}
+.btn-orange{background:#ffe1ca;color:#82431c}.btn-blue{background:#d9efff;color:#185a8d}.btn-primary{background:#287fc0;color:white;width:100%;font-size:1.05rem;margin-top:14px}.btn-next{background:#27884d;color:#fff;width:100%;margin-top:10px}
+.feedback{display:none;padding:13px;border-radius:14px;margin-top:12px;font-weight:bold}
+.feedback.good{display:block;background:var(--green);color:#17683a}.feedback.try{display:block;background:#fff0d6;color:#855516}
+.small{font-size:.9rem;color:#647789}
+footer{text-align:center;padding:12px;color:#61778b}
+@media(max-width:520px){main{padding:10px}.panel{padding:13px}.controls{grid-template-columns:1fr}.clock-wrap{max-width:310px}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>⏰ TICK-TOCK! LET’S LEARN ABOUT TIME!</h1>
+  <p>🌈 Jom belajar membaca jam, anak-anak bijak! ⭐</p>
+</header>
+<section class="panel">
+  <div class="row"><span class="pill" id="progress">SOALAN 1 DARIPADA 6</span><span class="pill" id="score">⭐ Markah: 0/6</span></div>
+  <div class="prompt">
+    <h2 id="targetTitle">Tunjukkan pukul 8:00 pagi</h2>
+    <p id="activity">Time to get ready for school!</p>
+  </div>
+  <div class="clock-wrap">
+    <svg id="clock" viewBox="0 0 300 300" aria-label="Jam analog interaktif">
+      <circle cx="150" cy="150" r="133" fill="#fffdf5" stroke="#f3b83f" stroke-width="7"/>
+      <circle cx="150" cy="150" r="121" fill="none" stroke="#e9d8b0" stroke-width="1.5"/>
+      <g id="ticks"></g><g id="numbers"></g>
+      <line id="hourHand" x1="150" y1="150" x2="150" y2="97" stroke="#f18a43" stroke-width="9" stroke-linecap="round" style="cursor:grab"/>
+      <line id="minuteHand" x1="150" y1="150" x2="150" y2="69" stroke="#2c91d3" stroke-width="5.5" stroke-linecap="round" style="cursor:grab"/>
+      <circle cx="150" cy="150" r="9" fill="#704b35" stroke="white" stroke-width="2"/>
+    </svg>
+    <div class="time-readout" id="readout">12:00</div>
+    <div class="legend"><span><i class="dot" style="background:#f18a43"></i>Jarum pendek = jam</span><span><i class="dot" style="background:#2c91d3"></i>Jarum panjang = minit</span></div>
+    <p class="small">Tip: Untuk waktu tepat (contohnya 8:00), jarum panjang mesti menunjuk ke 12. Seret jarum pada jam atau gunakan butang di bawah.</p>
+  </div>
+</section>
+<section class="panel">
+  <h2 style="margin-top:0">🕹️ Gerakkan jarum jam</h2>
+  <div class="controls">
+    <div class="control">
+      <h3>🟠 Jarum pendek (jam): <span id="hourVal">12</span></h3>
+      <div class="row">
+        <button class="btn-orange" id="hourMinus" aria-label="Kurangkan jam">− Undur</button>
+        <button class="btn-orange" id="hourPlus">Maju +</button>
+      </div>
+    </div>
+    <div class="control">
+      <h3>🔵 Jarum panjang (minit): <span id="minuteVal">00</span></h3>
+      <div class="row">
+        <button class="btn-blue" id="minuteMinus">− Undur</button>
+        <button class="btn-blue" id="minutePlus">Maju +</button>
+      </div>
+    </div>
+  </div>
+  <button class="btn-primary" id="check">✓ Semak jawapan</button>
+  <div id="feedback" class="feedback" role="status"></div>
+  <button class="btn-next" id="next" style="display:none">Soalan seterusnya ➜</button>
+</section>
+<footer>💖 Terus mencuba! You can do it, little stars! 💖</footer>
+</main>
+<script>
+const tasks=[
+ {h:8,period:'pagi',title:'Tunjukkan pukul 8:00 pagi',activity:'Time to get ready for school!'},
+ {h:12,period:'tengah hari',title:'Tunjukkan pukul 12:00 tengah hari',activity:'Time for lunch!'},
+ {h:4,period:'petang',title:'Tunjukkan pukul 4:00 petang',activity:'Time for an afternoon snack!'},
+ {h:9,period:'malam',title:'Tunjukkan pukul 9:00 malam',activity:'Time to get ready for bed!'},
+ {h:11,period:'pagi',title:'Tunjukkan pukul 11:00 pagi',activity:'Time for a morning activity!'},
+ {h:6,period:'petang',title:'Tunjukkan pukul 6:00 petang',activity:'Time to relax with family!'}
+];
+let index=0,hour=12,minute=0,score=0,answered=false;
+const $=id=>document.getElementById(id);
+const ns='http://www.w3.org/2000/svg';
+for(let i=0;i<60;i++){
+ const a=i*Math.PI/30,major=i%5===0;
+ const l=document.createElementNS(ns,'line');
+ l.setAttribute('x1',150+105*Math.sin(a));l.setAttribute('y1',150-105*Math.cos(a));
+ l.setAttribute('x2',150+(major?116:111)*Math.sin(a));l.setAttribute('y2',150-(major?116:111)*Math.cos(a));
+ l.setAttribute('stroke',major?'#755c42':'#d8c9ac');l.setAttribute('stroke-width',major?'2.5':'1');$('ticks').appendChild(l);
+}
+for(let n=1;n<=12;n++){
+ const a=n*Math.PI/6,t=document.createElementNS(ns,'text');
+ t.setAttribute('x',150+88*Math.sin(a));t.setAttribute('y',155-88*Math.cos(a));
+ t.setAttribute('text-anchor','middle');t.setAttribute('font-size','17');t.setAttribute('font-weight','bold');t.setAttribute('fill','#4a3b32');t.textContent=n;$('numbers').appendChild(t);
+}
+function render(){
+ const ha=((hour%12)+minute/60)*Math.PI/6,ma=minute*Math.PI/30;
+ $('hourHand').setAttribute('x2',150+53*Math.sin(ha));$('hourHand').setAttribute('y2',150-53*Math.cos(ha));
+ $('minuteHand').setAttribute('x2',150+81*Math.sin(ma));$('minuteHand').setAttribute('y2',150-81*Math.cos(ma));
+ $('hourVal').textContent=hour;$('minuteVal').textContent=String(minute).padStart(2,'0');
+ $('readout').textContent=String(hour).padStart(2,'0')+':'+String(minute).padStart(2,'0');
+}
+function updateTask(){
+ const t=tasks[index];$('progress').textContent=`SOALAN ${index+1} DARIPADA ${tasks.length}`;
+ $('score').textContent=`⭐ Markah: ${score}/${tasks.length}`;$('targetTitle').textContent=t.title;$('activity').textContent=t.activity;
+ $('feedback').className='feedback';$('feedback').style.display='none';$('next').style.display='none';$('check').style.display='block';answered=false;render();
+}
+function changeHour(delta){hour=((hour-1+delta+12)%12)+1;resetFeedback();render()}
+function changeMinute(delta){minute=(minute+delta+60)%60;resetFeedback();render()}
+function resetFeedback(){if(answered)return;$('feedback').style.display='none';$('feedback').className='feedback';}
+$('hourMinus').onclick=()=>changeHour(-1);$('hourPlus').onclick=()=>changeHour(1);
+$('minuteMinus').onclick=()=>changeMinute(-5);$('minutePlus').onclick=()=>changeMinute(5);
+$('check').onclick=()=>{
+ if(answered)return;
+ const t=tasks[index];
+ // The short hand must point to the requested hour and the long hand to 12 (minute 00).
+ const correct=(hour===t.h && minute===0);
+ answered=true;
+ const box=$('feedback');box.style.display='block';
+ if(correct){score++;box.className='feedback good';box.textContent='🎉 Betul! Syabas! Kedua-dua jarum berada pada kedudukan yang tepat!';$('score').textContent=`⭐ Markah: ${score}/${tasks.length}`;}
+ else{box.className='feedback try';box.textContent='😊 Cuba lagi! Jarum pendek mesti menunjuk ke '+t.h+' dan jarum panjang mesti menunjuk ke 12.';answered=false;return;}
+ $('check').style.display='none';$('next').style.display='block';
+ $('next').textContent=index===tasks.length-1?'Lihat keputusan 🏆':'Soalan seterusnya ➜';
+};
+$('next').onclick=()=>{
+ if(index<tasks.length-1){index++;hour=12;minute=0;updateTask();}
+ else{
+  $('targetTitle').textContent='🏆 Tahniah, jom belajar lagi!';
+  $('activity').textContent=`Kamu mendapat ${score} daripada ${tasks.length} markah. Hebat!`;
+  $('progress').textContent='SELESAI!';$('feedback').style.display='none';$('check').style.display='none';$('next').textContent='🔄 Main semula';$('next').onclick=()=>{index=0;hour=12;minute=0;score=0;updateTask();$('next').onclick=nextAction;}; 
+ }
+};
+function nextAction(){if(index<tasks.length-1){index++;hour=12;minute=0;updateTask();}else{index=0;hour=12;minute=0;score=0;updateTask();}}
+/* Allow dragging either hand. Dragging snaps to the nearest hour/minute mark. */
+function angleFromEvent(ev){
+ const r=$('clock').getBoundingClientRect();const scale=300/r.width;
+ const x=(ev.clientX-r.left)*scale-150,y=(ev.clientY-r.top)*scale-150;
+ return (Math.atan2(x,-y)+Math.PI*2)%(Math.PI*2);
+}
+function attachDrag(el,type){
+ let dragging=false;
+ el.addEventListener('pointerdown',ev=>{dragging=true;el.setPointerCapture(ev.pointerId);ev.preventDefault();});
+ el.addEventListener('pointermove',ev=>{
+  if(!dragging)return;const a=angleFromEvent(ev);
+  if(type==='hour'){hour=(Math.round(a/(Math.PI/6))%12)||12;}
+  else{minute=(Math.round(a/(Math.PI/30))*1)%60;}
+  resetFeedback();render();
+ });
+ const stop=()=>dragging=false;el.addEventListener('pointerup',stop);el.addEventListener('pointercancel',stop);
+}
+attachDrag($('hourHand'),'hour');attachDrag($('minuteHand'),'minute');
+updateTask();
+</script>
+</body>
+</html>
